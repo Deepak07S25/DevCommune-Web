@@ -11,6 +11,13 @@ tools using
 
 
 
+Body
+    NavBar
+    Route=/ => feed
+    Route=/login => login
+    Route=/connections =>Connections
+    Router=/profiles=>Profile
+
 
 
 
