@@ -1,54 +1,67 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../utils/constants';
+import { removeUser } from '../utils/userSlice';
+import axios from 'axios';
+ 
 const NavBar = () => {
-  // Adjust the selector to access the nested user object
-  const user = useSelector((store) => store.user?.user); // Access the nested user object if needed
-  
-  console.log("User data:", user);
+  // Access the nested user object from Redux store
+  const user = useSelector((store) => store.user); 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  if (!user) {
-    return (
-      <div className="navbar bg-base-200">
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl">DevCommune</a>
-        </div>
-      </div>
-    );
-  }
+  const handleLogout = async () => {
+    try{
+      await axios.post(BASE_URL + "/logout",{},{ withCredentials:true});
+      dispatch(removeUser()); 
+      return navigate("/login");
+    }  
+    catch(err){
+     console.error("Logout failed", err);
+    }
+  };
 
   return (
-    <div className="navbar bg-base-200">
+    <div className="navbar bg-base-300">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">DevCommune</a>
+        <Link to="/" className="btn btn-ghost text-xl">
+        DevCommune
+        </Link>
       </div>
+     
       {user && (
-        <div className="flex-none gap-2">
-          <div className="form-control">Welcome, {user.firstName}</div> 
-          <div className="dropdown dropdown-end mx-5 flex">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <img
-                  alt="user photo"
-                  src={user.photoUrl || "https://via.placeholder.com/150"} // Fallback if photoUrl is missing
-                />
-              </div>
-            </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-              <li>
-                <a className="justify-between">
-                  Profile
-                  <span className="badge">New</span>
-                </a>
-              </li>
-              <li><a>Settings</a></li>
-              <li><a>Logout</a></li>
-            </ul>
+    <div className="flex-none gap-2">
+      <div className="form-control"> Welcome, {user.firstName}</div>
+      <div className="dropdown dropdown-end mx-5 flex">
+        <div 
+          tabIndex={0}
+          role="button"
+          className="btn btn-ghost btn-circle avatar"
+        >
+          <div className="w-10 rounded-full">
+            <img
+              alt="user photo"
+              src={user.photoUrl || '/default-avatar.png'} // Fallback for missing photoUrl
+            />
           </div>
         </div>
-      )}
+        <ul
+          tabIndex={0}
+          className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+          <li>
+            <Link to="/profile" className="justify-between">
+              Profile
+              <span className="badge">New</span>
+            </Link>
+          </li>
+          <li><a>Settings</a></li>
+          <li><a onClick={handleLogout}>Logout</a></li>
+        </ul>
+      </div>
+    </div>
+)}
+
     </div>
   );
 };
